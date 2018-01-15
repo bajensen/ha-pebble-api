@@ -1,6 +1,7 @@
 <?php
 use \Psr\Http\Message\ServerRequestInterface as Request;
 use \Psr\Http\Message\ResponseInterface as Response;
+use Zyn\HomeAssistant\ClientException;
 
 require __DIR__ . '/../vendor/autoload.php';
 
@@ -131,15 +132,17 @@ $app->post('/entities/{entity_id}[/{action_id}]', function (Request $request, Re
 
     if ($action) {
         try {
-            $result = $apiClient->callService($action['ha_service'], $action['ha_action'], $action['ha_data']);
+            $apiClient->callService($action['ha_service'], $action['ha_action'], $action['ha_data']);
 
-            $response->getBody()->write(json_encode(['status' => 'success', 'message' => 'Success!'], JSON_NUMERIC_CHECK));
+            $newRow = $entityService->getEntityRow($entityId);
+
+            $response->getBody()->write(json_encode($newRow, JSON_NUMERIC_CHECK));
 
             return $response
                 ->withAddedHeader('Content-Type', 'application/json')
                 ->withStatus(200);
         }
-        catch (\Zyn\HomeAssistant\ClientException $e) {
+        catch (ClientException $e) {
             $response->getBody()->write(json_encode(['status' => 'error', 'message' => $e->getMessage()], JSON_NUMERIC_CHECK));
 
             return $response

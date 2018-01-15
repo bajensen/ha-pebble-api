@@ -19,6 +19,10 @@ class Client {
         $this->setPassword($password);
     }
 
+    public function clearStates () {
+        $this->entityStates = null;
+    }
+
     public function getStates () {
         if (! $this->entityStates) {
             $result = $this->get('/api/states');
@@ -44,6 +48,8 @@ class Client {
 
     public function callService ($service, $action, $data) {
         $path = '/api/services/' . $service . '/' . $action;
+
+        $this->clearStates();
 
         return $this->post($path, $data);
     }

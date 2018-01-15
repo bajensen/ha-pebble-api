@@ -51,24 +51,13 @@ class EntityService {
         $output = [];
 
         foreach ($entities as $entityId => $entityProperties) {
-            $state = $this->getEntityState($entityId);
-
-            $stateMap = array_key_exists('state_map', $entityProperties) ? $entityProperties['state_map'] : null;
-            $stateText = (array_key_exists($state, $stateMap) && array_key_exists('name', $stateMap[$state])) ? $stateMap[$state]['name'] : null;
-
-            $output[] = [
-                'title' => $entityProperties['name'],
-                'subtitle' => ($stateText ? '(' . $stateText . ') ' : '') . $entityProperties['desc'],
-                'entity_id' => $entityId,
-            ];
+            $output[] = $this->getEntityRow($entityId, $entityProperties);
         }
 
         return $output;
     }
 
     public function getEntityNextActionId ($entityId) {
-        $entities = $this->config;
-
         $actions = $this->getEntityActions($entityId);
         $state = $this->getEntityState($entityId);
 
@@ -96,24 +85,45 @@ class EntityService {
         if ($state !== null && array_key_exists($state, $stateMap)) {
             foreach ($stateMap[$state]['action_list'] as $actionId) {
                 $actionProperties = $entity['actions'][$actionId];
-                $output[] = [
-                    'title' => $actionProperties['name'],
-                    'subtitle' => $actionProperties['desc'],
-                    'action_id' => $actionId,
-                ];
+                $output[] = $this->getActionRow($entityId, $actionId, $actionProperties);
             }
         }
         else {
             foreach ($entity['actions'] as $actionId => $actionProperties) {
-                $output[] = [
-                    'title' => $actionProperties['name'],
-                    'subtitle' => $actionProperties['desc'],
-                    'action_id' => $actionId,
-                ];
+                $output[] = $this->getActionRow($entityId, $actionId, $actionProperties);
             }
         }
 
         return $output;
+    }
+
+    public function getEntityRow ($entityId, $entityProperties = null) {
+        $entities = $this->config;
+
+        $state = $this->getEntityState($entityId);
+
+        $entityProperties = $entityProperties ?: $entities[$entityId];
+
+        $stateMap = array_key_exists('state_map', $entityProperties) ? $entityProperties['state_map'] : null;
+        $stateText = (array_key_exists($state, $stateMap) && array_key_exists('name', $stateMap[$state])) ? $stateMap[$state]['name'] : null;
+
+        return [
+            'title' => $entityProperties['name'],
+            'subtitle' => ($stateText ? '(' . $stateText . ') ' : '') . $entityProperties['desc'],
+            'entity_id' => $entityId,
+        ];
+    }
+
+    public function getActionRow ($entityId, $actionId, $actionProperties) {
+        $entities = $this->config;
+
+        $actionProperties = $actionProperties ?: $entities[$entityId]['actions'][$actionId];
+
+        return [
+            'title' => $actionProperties['name'],
+            'subtitle' => $actionProperties['desc'],
+            'action_id' => $actionId,
+        ];
     }
 
     /**
