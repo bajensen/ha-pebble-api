@@ -6,8 +6,6 @@ ENV HOME_ASSISTANT_PASSWORD hackme
 ENV API_KEY hackmemore
 ENV ENTITIES_FILE_PATH entities.default.php
 
-
-COPY config /opt/ha-pebble-api/config
 COPY logs /opt/ha-pebble-api/logs
 COPY public /opt/ha-pebble-api/public
 COPY src /opt/ha-pebble-api/src
@@ -25,6 +23,8 @@ RUN rm /etc/httpd/conf.d/welcome.conf && \
     chmod +x /opt/ha-pebble-api/docker-entrypoint.sh
 
 WORKDIR /opt/ha-pebble-api/public
+
+COPY config /opt/ha-pebble-api/config
 
 EXPOSE 80
 
