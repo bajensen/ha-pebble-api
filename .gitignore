@@ -4,3 +4,5 @@
 !/logs/.empty
 /config/*
 !/config/config.default.php
+!/config/config.docker.php
+!/config/entities.default.php

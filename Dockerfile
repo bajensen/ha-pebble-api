@@ -1,5 +1,12 @@
 FROM bjensena/pag2471sc
 
+ENV ENVIRONMENT docker
+ENV HOME_ASSISTANT_URL http://localhost:8123
+ENV HOME_ASSISTANT_PASSWORD hackme
+ENV API_KEY hackmemore
+ENV ENTITIES_FILE_PATH entities.default.php
+
+
 COPY config /opt/ha-pebble-api/config
 COPY logs /opt/ha-pebble-api/logs
 COPY public /opt/ha-pebble-api/public
