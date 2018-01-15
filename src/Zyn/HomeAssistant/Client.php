@@ -23,6 +23,16 @@ class Client {
         $this->entityStates = null;
     }
 
+    protected function processState ($entity) {
+        $state = $entity['state'];
+        $src = $entity;
+
+        return [
+            'state' => $state,
+            'src' => $src
+        ];
+    }
+
     public function getStates () {
         if (! $this->entityStates) {
             $result = $this->get('/api/states');
@@ -31,13 +41,7 @@ class Client {
 
             foreach ($result as $entity) {
                 $entityId = $entity['entity_id'];
-                $state = $entity['state'];
-                $src = $entity;
-
-                $entities[$entityId] = [
-                    'state' => $state,
-                    'src' => $src
-                ];
+                $entities[$entityId] = $this->processState($entity);
             }
 
             $this->entityStates = $entities;
@@ -49,9 +53,15 @@ class Client {
     public function callService ($service, $action, $data) {
         $path = '/api/services/' . $service . '/' . $action;
 
-        $this->clearStates();
+        $result = $this->post($path, $data);
 
-        return $this->post($path, $data);
+        // Use what Home Assistant has given back to update all the entity states
+        foreach ($result as $entity) {
+            $entityId = $entity['entity_id'];
+            $this->entityStates[$entityId] = $this->processState($entity);
+        }
+
+        return $result;
     }
 
     public function get ($path) {
