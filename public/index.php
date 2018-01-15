@@ -40,13 +40,14 @@ $app = new \Slim\App(['settings' => $config]);
 // Authentication Middleware
 ///////////////////////////////////////////////
 $app->add(function (Request $request, Response $response, $next) use ($appConfig) {
-    $apiKeyHeader = $request->getHeader('X-HA-API-Key');
+    $apiKeyHeader = $request->getHeader('X-API-Key');
+
     $params = $request->getQueryParams();
-    $apiKeyParam = array_key_exists('key', $params) ? $params['key'] : null;
+    $apiKeyParam = array_key_exists('key', $params) ? [$params['key']] : null;
 
-    $apiKey = $apiKeyHeader ?: $apiKeyParam;
+    $apiKey = $apiKeyHeader ? $apiKeyHeader : $apiKeyParam;
 
-    if (! in_array($apiKey, $appConfig['api_keys'])) {
+    if (! array_intersect($apiKey, $appConfig['api_keys'])) {
         $response->getBody()->write(json_encode([ 'status' => 'error', 'message' => 'Access Denied'], JSON_NUMERIC_CHECK));
 
         return $response
