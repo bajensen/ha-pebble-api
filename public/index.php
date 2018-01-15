@@ -108,7 +108,7 @@ $app->get('/entities/{entity_id}', function (Request $request, Response $respons
             ->withStatus(200);
     }
     else {
-        $response->getBody()->write(json_encode([ 'status' => 'error', 'message' => 'Not found.'], JSON_NUMERIC_CHECK));
+        $response->getBody()->write(json_encode(['status' => 'error', 'message' => 'Not found.'], JSON_NUMERIC_CHECK));
 
         return $response
             ->withAddedHeader('Content-Type', 'application/json')
@@ -129,16 +129,26 @@ $app->any('/entities/{entity_id}/{action_id}', function (Request $request, Respo
     $action = $entityService->getEntityAction($entityId, $actionId);
 
     if ($action) {
-        $result = $apiClient->callService($action['ha_service'], $action['ha_action'], $action['ha_data']);
+        try {
+            $result = $apiClient->callService($action['ha_service'], $action['ha_action'], $action['ha_data']);
 
-        $response->getBody()->write(json_encode($result, JSON_NUMERIC_CHECK | ($pretty ? JSON_PRETTY_PRINT : 0)));
+            $response->getBody()->write(json_encode(['status' => 'success', 'message' => 'Success!'], JSON_NUMERIC_CHECK));
+//            $response->getBody()->write(json_encode($result, JSON_NUMERIC_CHECK | ($pretty ? JSON_PRETTY_PRINT : 0)));
 
-        return $response
-            ->withAddedHeader('Content-Type', 'application/json')
-            ->withStatus(200);
+            return $response
+                ->withAddedHeader('Content-Type', 'application/json')
+                ->withStatus(200);
+        }
+        catch (\Zyn\HomeAssistant\ClientException $e) {
+            $response->getBody()->write(json_encode(['status' => 'error', 'message' => $e->getMessage()], JSON_NUMERIC_CHECK));
+
+            return $response
+                ->withAddedHeader('Content-Type', 'application/json')
+                ->withStatus(500);
+        }
     }
     else {
-        $response->getBody()->write(json_encode([ 'status' => 'error', 'message' => 'Not found.'], JSON_NUMERIC_CHECK));
+        $response->getBody()->write(json_encode(['status' => 'error', 'message' => 'Not found.'], JSON_NUMERIC_CHECK));
 
         return $response
             ->withAddedHeader('Content-Type', 'application/json')
