@@ -4,7 +4,6 @@ COPY config /opt/ha-pebble-api/config
 COPY logs /opt/ha-pebble-api/logs
 COPY public /opt/ha-pebble-api/public
 COPY src /opt/ha-pebble-api/src
-COPY view /opt/ha-pebble-api/view
 COPY composer.json /opt/ha-pebble-api/
 COPY composer.lock /opt/ha-pebble-api/
 COPY docker-entrypoint.sh /opt/ha-pebble-api/
