@@ -119,12 +119,13 @@ $app->get('/entities/{entity_id}', function (Request $request, Response $respons
 ///////////////////////////////////////////////
 // URL: /entities/{entity_id}/{action_id}
 ///////////////////////////////////////////////
-$app->any('/entities/{entity_id}/{action_id}', function (Request $request, Response $response) use ($entityService, $apiClient)  {
+$app->post('/entities/{entity_id}[/{action_id}]', function (Request $request, Response $response) use ($entityService, $apiClient)  {
     $entityId = $request->getAttribute('entity_id');
     $actionId = $request->getAttribute('action_id');
 
-    $params = $request->getQueryParams();
-    $pretty = array_key_exists('pretty', $params);
+    if (! $actionId) {
+        $actionId = $entityService->getEntityNextActionId($entityId);
+    }
 
     $action = $entityService->getEntityAction($entityId, $actionId);
 
@@ -133,7 +134,6 @@ $app->any('/entities/{entity_id}/{action_id}', function (Request $request, Respo
             $result = $apiClient->callService($action['ha_service'], $action['ha_action'], $action['ha_data']);
 
             $response->getBody()->write(json_encode(['status' => 'success', 'message' => 'Success!'], JSON_NUMERIC_CHECK));
-//            $response->getBody()->write(json_encode($result, JSON_NUMERIC_CHECK | ($pretty ? JSON_PRETTY_PRINT : 0)));
 
             return $response
                 ->withAddedHeader('Content-Type', 'application/json')

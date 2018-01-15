@@ -66,6 +66,19 @@ class EntityService {
         return $output;
     }
 
+    public function getEntityNextActionId ($entityId) {
+        $entities = $this->config;
+
+        $actions = $this->getEntityActions($entityId);
+        $state = $this->getEntityState($entityId);
+
+        unset($actions[$state]);
+
+        $nextAction = $this->getFirstElementOfArray($actions);
+
+        return $nextAction['action_id'];
+    }
+
     public function getEntityActions ($entityId) {
         $entities = $this->config;
 
@@ -123,5 +136,9 @@ class EntityService {
         }
 
         return $actions[$actionId];
+    }
+
+    protected function getFirstElementOfArray ($array) {
+        return array_shift(array_slice($array, 0, 1));
     }
 }
