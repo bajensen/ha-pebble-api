@@ -86,7 +86,7 @@ class EntityService {
                 $output[] = [
                     'title' => $actionProperties['name'],
                     'subtitle' => $actionProperties['desc'],
-                    'entity_id' => $actionId,
+                    'action_id' => $actionId,
                 ];
             }
         }
